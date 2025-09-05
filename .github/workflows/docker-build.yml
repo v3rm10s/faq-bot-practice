@@ -1,0 +1,24 @@
+# Name of the workflow
+name: Docker Build CI
+
+# 1. Trigger: This workflow runs on any push to the "main" branch.
+on:
+  push:
+    branches: [ "main" ]
+
+# A workflow is made of one or more jobs.
+jobs:
+  # We have one job named "build".
+  build:
+    # 2. Environment: The job will run on a fresh virtual machine running Ubuntu.
+    runs-on: ubuntu-latest
+
+    # 3. Steps: A sequence of tasks to execute.
+    steps:
+    # First, check out the repository's code so the workflow can access it.
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    # Second, run the standard docker build command.
+    - name: Build Docker image
+      run: docker build . --file Dockerfile --tag my-faq-bot:latest
