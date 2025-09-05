@@ -12,6 +12,9 @@ jobs:
   build:
     # 2. Environment: The job will run on a fresh virtual machine running Ubuntu.
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
 
     # 3. Steps: A sequence of tasks to execute.
     steps:
