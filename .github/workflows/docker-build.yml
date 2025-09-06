@@ -1,4 +1,4 @@
-# Name of the workflow
+# Name of the workflow for the push
 name: Docker Build CI
 
 # 1. Trigger: This workflow runs on any push to the "main" branch.
