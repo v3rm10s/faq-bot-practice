@@ -38,22 +38,22 @@ jobs:
         IMAGE_ID=ghcr.io/${{ github.repository }}:${{ github.sha }}
         docker build . --tag $IMAGE_ID
         docker push $IMAGE_ID
-  # deploy:
-  #   # This job will only start if the 'build' job finishes successfully.
-  #   needs: build
-  #   runs-on: ubuntu-latest
+  deploy:
+    # This job will only start if the 'build' job finishes successfully.
+    needs: build
+    runs-on: ubuntu-latest
 
-  #   steps:
-  #   # Step 1: Log in to the cloud provider (Azure).
-  #   # Credentials are saved as encrypted secrets in GitHub.
-  #   - name: 'Log in to Azure'
-  #     uses: azure/login@v1
-  #     with:
-  #       creds: ${{ secrets.AZURE_CREDENTIALS }}
+    steps:
+    # Step 1: Log in to the cloud provider (Azure).
+    # Credentials are saved as encrypted secrets in GitHub.
+    - name: 'Log in to Azure'
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-  #   # Step 2: Use a specialized action to deploy our image.
-  #   # We tell it which image to deploy from our registry.
-  #   - name: 'Deploy to Azure Container Apps'
-  #     uses: azure/container-apps-deploy-action@v1
-  #     with:
-  #       imageToDeploy: ghcr.io/${{ github.repository }}:${{ github.sha }}
+    # Step 2: Use a specialized action to deploy our image.
+    # We tell it which image to deploy from our registry.
+    - name: 'Deploy to Azure Container Apps'
+      uses: azure/container-apps-deploy-action@v1
+      with:
+        imageToDeploy: ghcr.io/${{ github.repository }}:${{ github.sha }}
