@@ -39,30 +39,16 @@ jobs:
         docker build . --tag $IMAGE_ID
         docker push $IMAGE_ID
   deploy:
-    needs: build # Still depends on the build job
+    needs: build
     runs-on: ubuntu-latest
-    steps:
-    # 1. AUTHENTICATE WITH THE REGISTRY (e.g., GHCR)
-    # You cannot pull an image from a private registry without logging in first.
-    # The 'build' job pushed the image, but this is a new, separate job on a new machine.
-    - name: Login to GitHub Container Registry
-      uses: docker/login-action@v3
-      with:
-        registry: ghcr.io
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
 
-    # 2. AUTHENTICATE WITH THE CLOUD PROVIDER (AWS)
-    # This step gives the workflow permission to command your AWS account.
+    steps:
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v4
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ap-southeast-1
+        aws-region: ap-southeast-1 # Or your preferred region
 
-    # 3. EXECUTE THE DEPLOYMENT
-    # Now that the job is authenticated with both the image source and the deployment target,
-    # it can command App Runner to pull the new image.
     - name: Trigger AWS App Runner Deployment
       run: aws apprunner start-deployment --service-arn ${{ secrets.AWS_APP_RUNNER_SERVICE_ARN }}
