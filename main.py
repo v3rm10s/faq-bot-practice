@@ -13,7 +13,7 @@ faq_data: Dict[str, str] = {
 
 @app.get("/health")
 def health():
-    return {"message": "ok"}
+    raise HTTPException(status_code=200, detail = "ok")
 
 @app.get("/")
 def read_root() -> Dict[str , str]:
