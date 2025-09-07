@@ -4,4 +4,4 @@ build:
   docker:
     dockerfile: Dockerfile # Path to your Dockerfile
 run:
-  port: 80 # The port EXPOSEd in your Dockerfile
+  port: 8080 # The port EXPOSEd in your Dockerfile
