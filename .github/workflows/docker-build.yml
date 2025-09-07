@@ -1,54 +1,38 @@
-# Name of the workflow for the push
-name: Docker Build CI
+name: Build and Push to ECR
 
-# 1. Trigger: This workflow runs on any push to the "main" branch.
 on:
   push:
     branches: [ "main" ]
 
-# A workflow is made of one or more jobs.
 jobs:
-  # We have one job named "build".
-  build:
-    # 2. Environment: The job will run on a fresh virtual machine running Ubuntu.
+  build-and-push:
     runs-on: ubuntu-latest
-    # permissions:
-    #   contents: read
-    #   packages: write
 
-    # 3. Steps: A sequence of tasks to execute.
+    env:
+      ECR_REPOSITORY: faq-bot-practice # UPDATE THIS with your repo name if different
+      AWS_REGION: ap-southeast-1 # UPDATE THIS with your AWS region
+
     steps:
-    # First, check out the repository's code so the workflow can access it.
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    # Second, run the standard docker build command.
-    - name: Build Docker image
-      run: docker build . --file Dockerfile --tag my-faq-bot:latest
-
-    - name: Log in to GitHub Container Registry
-      uses: docker/login-action@v3
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
       with:
-        registry: ghcr.io
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
 
-    - name: Build, tag, and push Docker image
+    - name: Log in to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v2
+
+    - name: Build, tag, and push image to Amazon ECR
+      id: build-image
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        IMAGE_TAG: ${{ github.sha }}
       run: |
-        IMAGE_ID=ghcr.io/${{ github.repository }}:${{ github.sha }}
-        docker build . --tag $IMAGE_ID
-        docker push $IMAGE_ID
-  # deploy:
-  #   needs: build
-  #   runs-on: ubuntu-latest
-
-  #   steps:
-  #   - name: Configure AWS Credentials
-  #     uses: aws-actions/configure-aws-credentials@v4
-  #     with:
-  #       aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  #       aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  #       aws-region: ap-southeast-1 # Or your preferred region
-
-  #   - name: Trigger AWS App Runner Deployment
-  #     run: aws apprunner start-deployment --service-arn ${{ secrets.AWS_APP_RUNNER_SERVICE_ARN }}
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+        echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
