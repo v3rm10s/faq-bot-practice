@@ -1,6 +1,6 @@
 version: 1.0
 build:
-  image: python-app # A name for the resulting container image
+  image: faq-bot-practice # A name for the resulting container image
   docker:
     dockerfile: Dockerfile # Path to your Dockerfile
 run:
