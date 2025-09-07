@@ -1,8 +1,9 @@
 version: 1.0
 runtime: python311
 build:
-  image: faq-bot-practice # A name for the resulting container image
-  docker:
-    dockerfile: Dockerfile # Path to your Dockerfile
+  commands:
+    build:
+    - python3 -m pip install -r requirements.txt
 run:
-  port: 8080 # The port EXPOSEd in your Dockerfile
+  command: python3 -m uvicorn main:app --host 0.0.0.0 --port 8080
+  port: 8080
