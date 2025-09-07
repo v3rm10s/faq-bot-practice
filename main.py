@@ -11,6 +11,10 @@ faq_data: Dict[str, str] = {
     "What is Govtech's mission": 'Engineering Digital Government, Making Lives Better.'
 }
 
+@app.get("/health")
+def health():
+    return {"message": "ok"}
+
 @app.get("/")
 def read_root() -> Dict[str , str]:
     return {"message": "Welcome to the FAQ Bot API"}
