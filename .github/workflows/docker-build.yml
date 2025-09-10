@@ -33,30 +33,30 @@ jobs:
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v2
 
-    - name: Define image URI and build Docker image
+    - name: 4. Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+
+    - name: 5. Terraform Init
+      # You need to specify the path to your terraform files
+      run: terraform -chdir=./terraform init
+
+    - name: 6. Terraform Apply ECR Only
+      # This surgically creates ONLY the ECR repo so we can push to it.
+      # Replace 'aws_ecr_repository.faq-bot-practice' with the name from your .tf file
+      run: terraform -chdir=./terraform apply -target=aws_ecr_repository.faq-bot-practice -auto-approve
+
+    - name: 7. Build, Tag, and Push image to Amazon ECR
       id: build-image
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        # Use the variable from your TF files for the repo name
+        ECR_REPOSITORY: ${{ env.ECR_REPOSITORY }}
         IMAGE_TAG: ${{ github.sha }}
       run: |
-        # Build the Docker image
         docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-
-        # Push the Docker image to ECR
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-
-        # Set the full image URI as an output of THIS specific step
         echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
-    - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v3
-
-    - name: Terraform Init
-      run: terraform init
-
-    - name: Terraform Plan
-      id: plan
-      run: terraform plan -var="ecr_image_identifier=${{ steps.build-image.outputs.image }}"
-
-    - name: Terraform Apply
-      run: terraform apply -auto-approve -var="ecr_image_identifier=${{ steps.build-image.outputs.image }}"
+    - name: 8. Terraform Apply Full
+      # This applies all other changes, including updating App Runner with the new image
+      run: terraform -chdir=./terraform apply -auto-approve -var="ecr_image_identifier=${{ steps.build-image.outputs.image }}"
