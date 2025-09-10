@@ -3,6 +3,16 @@ provider "aws" {
   region = var.aws_region
 }
 
+resource "aws_ecr_repository" "faq-bot-practice" {
+  name                 = var.service_name
+  image_tag_mutability = var.image_tags
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+}
+
+
 # Define the App Runner service resource
 resource "aws_apprunner_service" "faq_bot_service" {
   service_name = var.service_name
@@ -19,7 +29,7 @@ resource "aws_apprunner_service" "faq_bot_service" {
       image_repository_type = "ECR"
 
       image_configuration {
-        port = "8080" # The port your FastAPI app listens on
+        port = var.port # The port your FastAPI app listens on
       }
     }
     # Enabling auto-deployments is often desired for CI/CD workflows.
@@ -30,8 +40,8 @@ resource "aws_apprunner_service" "faq_bot_service" {
   # It's best practice to define the compute instance size.
   # Otherwise, you get the default, which may not be what you need.
   instance_configuration {
-    cpu    = "1024" # 1 vCPU
-    memory = "2048" # 2 GB
+    cpu    = var.runner_cpu # 1 vCPU
+    memory = var.runner_memory # 2 GB
   }
 
   # Adding a health check is crucial for production services.
@@ -43,8 +53,6 @@ resource "aws_apprunner_service" "faq_bot_service" {
     path        = "/" # Change if your health check endpoint is different
   }
 
-  tags = {
-    Project = "FAQ Bot"
-    ManagedBy = "Terraform"
-  }
+  tags = var.resource_tags
+
 }

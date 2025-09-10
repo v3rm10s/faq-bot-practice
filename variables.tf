@@ -10,9 +10,41 @@ variable "service_name" {
   default     = "faq-bot-app"
 }
 
+variable "image_tags" {
+  description = "Tag for the project"
+  type        = string
+  default     = "MUTABLE"
+}
+
 variable "ecr_image_identifier" {
   description = "The full URI of the docker image in the private ECR repository."
   type        = string
-  # Replace this with your actual ECR image URI
-  default     = "129585230409.dkr.ecr.ap-southeast-1.amazonaws.com/faq-bot-practice:e29e8535fa0018c19af99a17c4247049f8cccef4"
+}
+
+variable "runner_cpu" {
+  description = "The cpu specs for the aws runner."
+  type        = number
+  default     = 1024
+}
+
+variable "runner_memory" {
+  description = "The memory specs for the aws runner."
+  type        = number
+  default     = 2048
+}
+
+variable "port" {
+  description = "The port your FastAPI app listens on"
+  type        = number
+  default     = 8080
+}
+
+variable "resource_tags" {
+  description = "Tag for the project"
+  type        = map(string)
+  default     = {
+    Project     = "Fortress-API"
+    Owner       = "AspiringRE"
+    ManagedBy   = "Terraform"
+}
 }
