@@ -7,7 +7,7 @@ variable "aws_region" {
 variable "service_name" {
   description = "The name for the App Runner service."
   type        = string
-  default     = "faq-bot-app"
+  default     = "faq-bot-practice"
 }
 
 variable "image_tags" {
