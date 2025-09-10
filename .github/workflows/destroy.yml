@@ -1,0 +1,38 @@
+name: Destroy Infrastructure
+
+# This trigger allows you to run the workflow manually from the Actions tab
+on:
+  workflow_dispatch:
+
+env:
+  # Ensure this region matches your deployment
+  AWS_REGION: 'ap-southeast-1' 
+
+jobs:
+  terraform-destroy:
+    name: Terraform Destroy
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      id-token: write # Or use static keys to match your deploy workflow
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Init
+        run: terraform -chdir=./terraform init
+
+      - name: Terraform Destroy
+        run: terraform -chdir=./terraform destroy -auto-approve
