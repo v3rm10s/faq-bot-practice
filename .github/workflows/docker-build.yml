@@ -43,7 +43,7 @@ jobs:
     - name: 6. Terraform Apply ECR Only
       # This surgically creates ONLY the ECR repo so we can push to it.
       # Replace 'aws_ecr_repository.faq-bot-practice' with the name from your .tf file
-      run: terraform -chdir=./terraform apply -target=aws_ecr_repository.faq-bot-practice -auto-approve
+      run: terraform -chdir=./terraform apply -target=aws_ecr_repository.faq-bot-practice -auto-approve -var="ecr_image_identifier=placeholder"
 
     - name: 7. Build, Tag, and Push image to Amazon ECR
       id: build-image
